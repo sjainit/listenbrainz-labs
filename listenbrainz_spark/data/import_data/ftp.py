@@ -115,13 +115,6 @@ class ListenBrainzFTPDownloader:
             the path to the downloaded incremental dump
         """
         self.connection.cwd('/pub/musicbrainz/listenbrainz/incremental')
-
-        incremental_dumps = self.list_dir()
-        logging.info("List of available incremental dumps: ")
-        for dump_name in incremental_dumps:
-            logging.info(dump_name)
-
-
         dump_dir = self.get_dump_dir_name(dump_id=dump_id, full=False)
         dump_name = self.get_spark_dump_name(dump_dir, full=False)
         print("Downloading %s..." % dump_name)
