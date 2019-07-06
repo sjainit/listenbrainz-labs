@@ -16,7 +16,7 @@ from datetime import datetime
 from hdfs.util import HdfsError
 from listenbrainz_spark import hdfs_connection
 from listenbrainz_spark.constants import LAST_FM_FOUNDING_YEAR
-from listenbrainz_spark.data import DATA_ROOT_PATH
+from listenbrainz_spark.data import DATA_ROOT_PATH, VERSION_FILE_PATH
 from listenbrainz_spark.data.import_data.ftp import ListenBrainzFTPDownloader, DumpNotFoundException
 from listenbrainz_spark.schema import convert_listen_to_row, listen_schema, convert_to_spark_json
 import pyspark.sql.functions as sql_functions
@@ -104,7 +104,7 @@ def copy_to_hdfs(archive, full=True, threads=8):
     with open(os.path.join(tmp_dump_dir, 'DATA_VERSION'), 'w') as f:
         f.write(str(dump_id) + "\n")
     hdfs_connection.client.upload(
-        hdfs_path=os.path.join(DATA_ROOT_PATH, 'DATA_VERSION'),
+        hdfs_path=VERSION_FILE_PATH,
         local_path=os.path.join(tmp_dump_dir, 'DATA_VERSION'),
         overwrite=True,
     )
@@ -114,8 +114,9 @@ def copy_to_hdfs(archive, full=True, threads=8):
 
 
 def get_current_data_version():
-    version_file_path = os.path.join(DATA_ROOT_PATH, 'DATA_VERSION')
-    with hdfs_connection.client.read(version_file_path) as reader:
+    """ Get the current version of the data in HDFS
+    """
+    with hdfs_connection.client.read(VERSION_FILE_PATH) as reader:
         return int(reader.read().strip())
 
 
