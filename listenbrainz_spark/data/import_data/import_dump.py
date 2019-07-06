@@ -73,7 +73,7 @@ def copy_to_hdfs(archive, full=True, threads=8):
         hdfs_connection.client.delete(destination_path, recursive=True)
         print('Done!')
 
-    dump_id = int(os.path.split(archive)[1].split('-')[2])
+    dump_id = int(os.path.split(archive)[1].split('-')[3])
     if not full:
         hdfs_connection.client.download(os.path.join(destination_path, 'DATA_VERSION'), tmp_dump_dir)
         with open(os.path.join(tmp_dump_dir, 'DATA_VERSION')) as f:

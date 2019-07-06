@@ -1,9 +1,11 @@
+import listenbrainz_spark
 import listenbrainz_spark.config as config
 import shutil
 import sys
 import tempfile
 import time
 
+from listenbrainz_spark import hdfs_connection
 from listenbrainz_spark.data.import_data import import_dump
 from listenbrainz_spark.data.import_data.ftp import ListenBrainzFTPDownloader
 
