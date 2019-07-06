@@ -5,6 +5,10 @@ import requests
 import tempfile
 
 
+class DumpNotFoundException(Exception):
+    pass
+
+
 class ListenBrainzFTPDownloader:
 
     def __init__(self):
@@ -27,7 +31,11 @@ class ListenBrainzFTPDownloader:
 
     def download_file_binary(self, src, dest):
         with open(dest, 'wb') as f:
-            self.connection.retrbinary('RETR %s' % src, f.write)
+            try:
+                self.connection.retrbinary('RETR %s' % src, f.write)
+            except ftplib.error_perm as e:
+                logging.critical("Could not download file: %s", str(e))
+                raise DumpNotFoundException
         return dest
 
 
@@ -38,7 +46,9 @@ class ListenBrainzFTPDownloader:
 
     def get_dump_dir_name(self, dump_id, full=True):
         r = requests.get('https://beta-api.listenbrainz.org/1/status/get-dump-info', params={'id': dump_id})
-        print(r.text)
+        if r.status_code == 404:
+            logging.critical("No dump exists with ID: %d", dump_id)
+            raise DumpNotFoundException("No dump exists with ID: %d" % dump_id)
         timestamp = r.json()['timestamp']
         dump_type = 'full' if full else 'incremental'
         return 'listenbrainz-dump-%d-%s-%s' % (dump_id, timestamp, dump_type)
@@ -53,7 +63,7 @@ class ListenBrainzFTPDownloader:
                     break
             else:
                 logging.critical("Could not find full dump with ID: %d, exiting", dump_id)
-                raise SystemExit("Could not find full dump with ID: %d, exiting" % dump_id)
+                raise DumpNotFoundException("Could not find full dump with ID: %d, exiting" % dump_id)
         else:
             req_dump = full_dumps[-1]
 
@@ -75,7 +85,6 @@ class ListenBrainzFTPDownloader:
 
 
         dump_dir = self.get_dump_dir_name(dump_id=dump_id, full=False)
-        print(dump_dir)
         dump_name = self.get_spark_dump_name(dump_dir, full=False)
         print("Downloading %s..." % dump_name)
         f = self.download_file_binary(os.path.join(dump_dir, dump_name), os.path.join(directory, dump_name))
