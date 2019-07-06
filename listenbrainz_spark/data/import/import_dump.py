@@ -54,6 +54,7 @@ def _process_json_file(filename, data_dir, hdfs_path):
 
 
 def copy_to_hdfs(archive, threads=8):
+
     """ Create Spark Dataframes from a listens dump and save it to HDFS.
 
     Args:
