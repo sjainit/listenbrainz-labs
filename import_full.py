@@ -21,5 +21,5 @@ if __name__ == '__main__':
     print("Downloading dump...")
     file_path = ListenBrainzFTPDownloader().download_full_dump(temp_dir)
     print("Dump downloaded in %.2f seconds!" % (time.time() - t0))
-    import_dump.main(file_path, full=True)
+    import_dump.full(file_path)
     shutil.rmtree(temp_dir)

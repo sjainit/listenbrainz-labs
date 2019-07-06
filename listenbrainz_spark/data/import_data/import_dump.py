@@ -16,6 +16,8 @@ from datetime import datetime
 from hdfs.util import HdfsError
 from listenbrainz_spark import hdfs_connection
 from listenbrainz_spark.constants import LAST_FM_FOUNDING_YEAR
+from listenbrainz_spark.data import DATA_ROOT_PATH
+from listenbrainz_spark.data.import_data.ftp import ListenBrainzFTPDownloader, DumpNotFoundException
 from listenbrainz_spark.schema import convert_listen_to_row, listen_schema, convert_to_spark_json
 import pyspark.sql.functions as sql_functions
 
@@ -67,18 +69,14 @@ def copy_to_hdfs(archive, full=True, threads=8):
     tmp_dump_dir = tempfile.mkdtemp()
     pxz_command = ['pxz', '--decompress', '--stdout', archive, '-T{}'.format(threads)]
     pxz = subprocess.Popen(pxz_command, stdout=subprocess.PIPE)
-    destination_path = os.path.join('/', 'data', 'listenbrainz')
     if full and FORCE:
         print('Removing data directory if present...')
-        hdfs_connection.client.delete(destination_path, recursive=True)
+        hdfs_connection.client.delete(DATA_ROOT_PATH, recursive=True)
         print('Done!')
 
     dump_id = int(os.path.split(archive)[1].split('-')[3])
     if not full:
-        hdfs_connection.client.download(os.path.join(destination_path, 'DATA_VERSION'), tmp_dump_dir)
-        with open(os.path.join(tmp_dump_dir, 'DATA_VERSION')) as f:
-            prev_dump_id = int(f.read().strip())
-
+        prev_dump_id = get_current_data_version()
         if dump_id != prev_dump_id + 1:
             print("Incorrect incremental dump being imported, expected %d, got %d, exiting..." % prev_dump_id + 1, dump_id)
             raise SystemExit("Incorrect incremental dump being imported")
@@ -93,7 +91,7 @@ def copy_to_hdfs(archive, full=True, threads=8):
                 tar.extract(member)
                 tmp_hdfs_path = os.path.join(tmp_dump_dir, member.name)
                 hdfs_connection.client.upload(hdfs_path=tmp_hdfs_path, local_path=member.name)
-                _process_json_file(member.name, destination_path, tmp_hdfs_path, full=full)
+                _process_json_file(member.name, DATA_ROOT_PATH, tmp_hdfs_path, full=full)
                 hdfs_connection.client.delete(tmp_hdfs_path)
                 os.remove(member.name)
                 file_count += 1
@@ -106,7 +104,7 @@ def copy_to_hdfs(archive, full=True, threads=8):
     with open(os.path.join(tmp_dump_dir, 'DATA_VERSION'), 'w') as f:
         f.write(str(dump_id) + "\n")
     hdfs_connection.client.upload(
-        hdfs_path=os.path.join(destination_path, 'DATA_VERSION'),
+        hdfs_path=os.path.join(DATA_ROOT_PATH, 'DATA_VERSION'),
         local_path=os.path.join(tmp_dump_dir, 'DATA_VERSION'),
         overwrite=True,
     )
@@ -115,7 +113,36 @@ def copy_to_hdfs(archive, full=True, threads=8):
     shutil.rmtree(tmp_dump_dir)
 
 
-def main(archive, full=True):
+def get_current_data_version():
+    version_file_path = os.path.join(DATA_ROOT_PATH, 'DATA_VERSION')
+    with hdfs_connection.client.read(version_file_path) as reader:
+        return int(reader.read().strip())
+
+
+def full(archive):
     print('Copying extracted dump to HDFS...')
     copy_to_hdfs(archive)
     print('Done!')
+
+def incremental():
+    current_version = get_current_data_version()
+    print("Current version: %d" % current_version)
+    lb_downloader = ListenBrainzFTPDownloader()
+    temp_dir = tempfile.mkdtemp()
+    while True:
+        t0 = time.time()
+        next_version = current_version + 1
+        try:
+            print("Downloading incremental dump with ID: %d" % next_version)
+            dump = lb_downloader.download_incremental_dump(temp_dir, dump_id=next_version)
+            print("Done!")
+        except DumpNotFoundException:
+            shutil.rmtree(temp_dir)
+            raise SystemExit("No further dumps found, exiting!")
+
+        print("Applying incremental dump with ID: %d" % next_version)
+        copy_to_hdfs(dump, full=False)
+        print("Done!")
+
+        print("Downloaded and applied in %.2f seconds" % (time.time() - t0))
+        current_version += 1
