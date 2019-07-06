@@ -129,8 +129,3 @@ class ListenBrainzFTPDownloader:
         print("Done!")
         self.connection.cwd("/")
         return f
-
-
-if __name__ == '__main__':
-    f = ListenBrainzFTPDownloader().download_incremental_dump(tempfile.mkdtemp(), dump_id=60)
-    print(f)
