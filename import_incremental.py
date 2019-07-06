@@ -12,5 +12,5 @@ if __name__ == '__main__':
 
     listenbrainz_spark.init_spark_session(sys.argv[1])
     hdfs_connection.init_hdfs(config.HDFS_HTTP_URI)
-    import_dump.incremental(file_path)
+    import_dump.incremental()
 
