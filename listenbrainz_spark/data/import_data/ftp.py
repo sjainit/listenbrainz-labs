@@ -4,6 +4,7 @@ import os
 import requests
 import tempfile
 
+from listenbrainz_spark import config
 
 class DumpNotFoundException(Exception):
     pass
@@ -15,8 +16,12 @@ class ListenBrainzFTPDownloader:
         self.connect()
 
     def connect(self):
-        self.connection = ftplib.FTP('ftp.musicbrainz.org') # TODO: get this from config
-        self.connection.login() # TODO: catch ftplib.error_perm
+        try:
+            self.connection = ftplib.FTP(config.FTP_SERVER_URI)
+            self.connection.login()
+        except ftplib.error_perm:
+            logging.critical("Couldn't connect to FTP Server, try again...")
+            raise SystemExit
 
     def list_dir(self, path=None, verbose=False):
         files = []
@@ -45,7 +50,9 @@ class ListenBrainzFTPDownloader:
         return 'listenbrainz-listens-dump-%s-%s-%s-spark-%s.tar.xz' % (dump_id, date, hour, dump_type)
 
     def get_dump_dir_name(self, dump_id, full=True):
-        r = requests.get('https://beta-api.listenbrainz.org/1/status/get-dump-info', params={'id': dump_id})
+        """ Get dump directory name from the dump ID
+        """
+        r = requests.get(LISTENBRAINZ_API_URI + '/1/status/get-dump-info', params={'id': dump_id})
         if r.status_code == 404:
             logging.critical("No dump exists with ID: %d", dump_id)
             raise DumpNotFoundException("No dump exists with ID: %d" % dump_id)

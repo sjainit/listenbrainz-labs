@@ -30,3 +30,7 @@ RECOMMENDATION_SIMILAR_ARTIST_LIMIT = 30
 # candidate sets
 TOP_ARTISTS_LIMIT = 20
 SIMILAR_ARTISTS_LIMIT = 10
+
+# FTP Download configs
+FTP_SERVER_URI = 'ftp.musicbrainz.org'
+LISTENBRAINZ_API_URI = 'https://beta-api.listenbrainz.org'
