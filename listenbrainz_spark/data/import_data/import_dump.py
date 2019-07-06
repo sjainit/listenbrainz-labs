@@ -59,11 +59,11 @@ def _process_json_file(filename, data_dir, hdfs_path, full=True):
 
 
 def copy_to_hdfs(archive, full=True, threads=8):
-
     """ Create Spark Dataframes from a listens dump and save it to HDFS.
 
     Args:
         archive (str): the path to the listens dump
+        full (bool): whether the archive is a full dump or an incremental dump
         threads (int): the number of threads to use for decompression of the archive
     """
     tmp_dump_dir = tempfile.mkdtemp()
@@ -121,11 +121,17 @@ def get_current_data_version():
 
 
 def full(archive):
+    """ Import a full ListenBrainz dump
+    """
     print('Copying extracted dump to HDFS...')
     copy_to_hdfs(archive)
     print('Done!')
 
 def incremental():
+    """ Import a series of incremental dumps starting from the current data version in HDFS
+
+    This goes on until no further dumps exist.
+    """
     current_version = get_current_data_version()
     print("Current version: %d" % current_version)
     lb_downloader = ListenBrainzFTPDownloader()

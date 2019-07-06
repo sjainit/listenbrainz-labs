@@ -24,6 +24,15 @@ class ListenBrainzFTPDownloader:
             raise SystemExit
 
     def list_dir(self, path=None, verbose=False):
+        """ Lists the current directory
+
+        Args:
+            path (str): the directory to list, lists the current working dir if not provided
+            verbose (bool): whether to return file properties or just file names
+
+        Returns:
+            [str]: a list of contents of the directory
+        """
         files = []
         def callback(x):
             files.append(x)
@@ -35,6 +44,8 @@ class ListenBrainzFTPDownloader:
         return files
 
     def download_file_binary(self, src, dest):
+        """ Download file `src` from the FTP server to `dest`
+        """
         with open(dest, 'wb') as f:
             try:
                 self.connection.retrbinary('RETR %s' % src, f.write)
@@ -45,6 +56,8 @@ class ListenBrainzFTPDownloader:
 
 
     def get_spark_dump_name(self, dump_name, full=True):
+        """ Get the name of the spark dump archive from the dump directory name
+        """
         _, _, dump_id, date, hour, _ = dump_name.split('-')
         dump_type = 'full' if full else 'incremental'
         return 'listenbrainz-listens-dump-%s-%s-%s-spark-%s.tar.xz' % (dump_id, date, hour, dump_type)
@@ -61,6 +74,15 @@ class ListenBrainzFTPDownloader:
         return 'listenbrainz-dump-%d-%s-%s' % (dump_id, timestamp, dump_type)
 
     def download_full_dump(self, directory, dump_id=None):
+        """ Download a ListenBrainz full spark dump to the specified directory
+
+        Args:
+            directory (str): the path to which the dump should be downloaded
+            dump_id (int): the ID of the dump to be downloaded, downloads the latest dump if not specified
+
+        Returns:
+            the path to the downloaded ListenBrainz spark dump
+        """
         self.connection.cwd('/pub/musicbrainz/listenbrainz/fullexport')
         full_dumps = self.list_dir()
         if dump_id:
@@ -83,6 +105,15 @@ class ListenBrainzFTPDownloader:
         return f
 
     def download_incremental_dump(self, directory, dump_id):
+        """ Download a ListenBrainz incremental spark dump to the specified directory
+
+        Args:
+            directory (str): the path where the dump should be downloaded
+            dump_id (int): the ID of the dump to be downloaded (required)
+
+        Returns:
+            the path to the downloaded incremental dump
+        """
         self.connection.cwd('/pub/musicbrainz/listenbrainz/incremental')
 
         incremental_dumps = self.list_dir()
