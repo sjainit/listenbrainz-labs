@@ -16,4 +16,6 @@ This is a table of the scripts that we can submit to Spark.
 | recommend.py          | uses the model trained by train_models.py and candidate sets to make recording         |
 |                       | recommendations for users                                                              |
 |----------------------------------------------------------------------------------------------------------------|
-| import.py             | imports a ListenBrainz dump into HDFS                                                  |
+| import_full.py        | imports a full ListenBrainz dump into HDFS                                             |
+|----------------------------------------------------------------------------------------------------------------|
+| import_incremental.py | imports the available incremental dumps since current data version to HDFS             |
