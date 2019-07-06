@@ -65,7 +65,7 @@ class ListenBrainzFTPDownloader:
     def get_dump_dir_name(self, dump_id, full=True):
         """ Get dump directory name from the dump ID
         """
-        r = requests.get(LISTENBRAINZ_API_URI + '/1/status/get-dump-info', params={'id': dump_id})
+        r = requests.get(config.LISTENBRAINZ_API_URI + '/1/status/get-dump-info', params={'id': dump_id})
         if r.status_code == 404:
             logging.critical("No dump exists with ID: %d", dump_id)
             raise DumpNotFoundException("No dump exists with ID: %d" % dump_id)
