@@ -101,7 +101,7 @@ def copy_to_hdfs(archive, full=True, threads=8):
                 print("Done! Processed %d files. Current file done in %.2f sec" % (file_count, time_taken))
                 total_time += time_taken
                 average_time = total_time / file_count
-                print("Total time: %.2f, average time: %.2f" % (total_time, average_time))
+                print("Total time: %.2f, average time: %.2f\n" % (total_time, average_time))
 
     with open(os.path.join(tmp_dump_dir, 'DATA_VERSION'), 'w') as f:
         f.write(str(dump_id) + "\n")
