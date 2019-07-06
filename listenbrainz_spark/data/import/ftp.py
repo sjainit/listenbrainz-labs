@@ -1,6 +1,7 @@
 import ftplib
 import logging
-import tempdir
+import os
+import tempfile
 
 
 class ListenBrainzFTPDownloader:
@@ -24,7 +25,7 @@ class ListenBrainzFTPDownloader:
         self.connection.retrlines(cmd, callback=callback)
         return files
 
-    def download_file_binary(src, dest):
+    def download_file_binary(self, src, dest):
         with open(dest, 'wb') as f:
             self.connection.retrbinary('RETR %s' % src, f.write)
         return dest
@@ -50,12 +51,12 @@ class ListenBrainzFTPDownloader:
 
         self.connection.cwd(req_dump)
         spark_dump_file_name = self.get_spark_dump_name(req_dump)
-        logging.info("Downloading %s...", spark_dump_file_name)
+        print("Downloading %s..." % spark_dump_file_name)
         f = self.download_file_binary(spark_dump_file_name, os.path.join(directory, spark_dump_file_name))
-        logging.info("Done!")
+        print("Done!")
         return f
 
 
 if __name__ == '__main__':
-    f = ListenBrainzFTPDownloader().download_full_dump(tempdir.mkdtemp())
+    f = ListenBrainzFTPDownloader().download_full_dump(tempfile.mkdtemp())
     print(f)
