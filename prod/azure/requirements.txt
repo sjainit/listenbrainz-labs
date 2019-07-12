@@ -1,0 +1,4 @@
+azure-mgmt-resource ~= 3.0
+azure-mgmt-network ~= 3.0
+azure-mgmt-compute ~= 5.0
+click == 7.0
