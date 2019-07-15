@@ -1,4 +1,5 @@
 import listenbrainz_spark
+import listenbrainz_spark.config as config
 import os
 import sys
 
@@ -7,7 +8,7 @@ from listenbrainz_spark.data import DATA_ROOT_PATH
 def main():
     listenbrainz_spark.init_spark_session(app_name=sys.argv[1])
     df = listenbrainz_spark.sql_context.read.parquet(
-        os.path.join(config.HDFS_CLUSTER_URI, DATA_ROOT_PATH, 'invalid.parquet')
+        config.HDFS_PATH_URI + os.path.join(DATA_ROOT_PATH, 'invalid.parquet')
     )
 
     for year in range(2002, 2020):
@@ -15,10 +16,9 @@ def main():
             try:
                 print(year, '\t', month)
                 file_df = listenbrainz_spark.sql_context.read.parquet(
-                        os.path.join(config.HDFS_CLUSTER_URI, DATA_ROOT_PATH, str(year), '%d.parquet' % month)
+                        config.HDFS_PATH_URI + os.path.join(DATA_ROOT_PATH, str(year), '%d.parquet' % month)
                 )
                 df = df.union(file_df)
-                print("Done!")
             except Exception:
                 print("Doesn't exist!")
                 pass
