@@ -49,3 +49,14 @@ COPY . /rec
 
 FROM metabrainz-spark-base as metabrainz-spark-dev
 COPY . /rec
+
+FROM metabrainz-spark-base as metabrainz-spark-cron
+
+RUN apt-get -y install cron
+COPY admin/stats-crontab /tmp/stats-crontab
+# TODO: don't do this with root, add a new user
+RUN cat /tmp/stats-crontab >> /etc/crontabs/root
+RUN rm /tmp/stats-crontab
+RUN touch /var/log/cron.log
+COPY . /rec
+CMD crond 2>&1 > /dev/null && tail -f /var/log/cron.log

@@ -1,0 +1,1 @@
+00 00 * * 2,5 /rec/spark-submit.sh manage.py user
