@@ -2,7 +2,9 @@ import subprocess
 
 
 def spark_submit(options):
-    subprocess.call('./py-spark-submit.sh', 'user')
+    r = subprocess.call(['./py-spark-submit.sh', 'manage.py', 'user'], capture_output=True)
+    print(r.stdout)
+
 
 
 if __name__ == '__main__':
