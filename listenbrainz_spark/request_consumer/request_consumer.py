@@ -69,7 +69,12 @@ class RequestConsumer:
                 )
                 break
             except pika.exceptions.ConnectionClosed:
+                self.connect_to_rabbitmq()
                 time.sleep(1)
+            except pika.exceptions.ChannelClosed:
+                self.result_channel = self.rabbitmq.channel()
+                self.result_channel.exchange_declare(exchange=current_app.config['SPARK_RESULT_EXCHANGE'], exchange_type='fanout')
+
 
 
     def callback(self, channel, method, properties, body):
