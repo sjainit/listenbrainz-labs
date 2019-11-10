@@ -44,6 +44,9 @@ class RequestConsumer:
         except KeyError:
             current_app.logger.error("Bad query sent to spark request consumer: %s", query, exc_info=True)
             return None
+        except Exception as e:
+            current_app.logger.error("Error while mapping query to function: %s", str(e), exc_info=True)
+            return None
 
         try:
             return query_handler(**params)
