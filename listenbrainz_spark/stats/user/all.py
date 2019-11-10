@@ -13,7 +13,7 @@ def calculate():
     data = defaultdict(dict)
 
     # calculate and put artist stats into the result
-    artist_data = get_artists(table)
+    artist_data = get_artists(table_name)
     for user_name, user_artists in artist_data.items():
         data[user_name]['artists'] = {
             'artist_stats': user_artists,
@@ -21,12 +21,12 @@ def calculate():
         }
 
     # calculate and put recording stats into the result
-    recording_data = get_recordings(table)
+    recording_data = get_recordings(table_name)
     for user_name, recording_stats in recording_data.items():
         data[user_name]['recordings'] = recording_stats
 
     # calculate and put release stats into the result
-    release_data = get_releases(table)
+    release_data = get_releases(table_name)
     for user_name, release_stats in release_data.items():
         data[user_name]['releases'] = release_stats
 
