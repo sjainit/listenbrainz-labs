@@ -73,11 +73,17 @@ class RequestConsumer:
 
 
     def callback(self, channel, method, properties, body):
+        current_app.logger.info("Processing new request...")
         request = json.loads(body.decode('utf-8'))
+        current_app.logger.info("Calculating response...")
         response = self.get_response(request)
+        current_app.logger.info("Done!")
         if response:
+            current_app.logger.info("Pushing response to response queue...")
             self.push_to_response_queue(response)
+            current_app.logger.info("Done!")
         channel.basic_ack(delivery_tag=method.delivery_tag)
+        current_app.logger.info("Request processed!")
 
 
     def connect_to_rabbitmq(self):
@@ -93,7 +99,9 @@ class RequestConsumer:
 
     def run(self):
         while True:
+            current_app.logger.info("Connecting to RabbitMQ...")
             self.connect_to_rabbitmq()
+            current_app.logger.info("Connected!")
             self.request_channel = self.rabbitmq.channel()
             self.request_channel.exchange_declare(exchange=current_app.config['SPARK_REQUEST_EXCHANGE'], exchange_type='fanout')
             self.request_channel.queue_declare(current_app.config['SPARK_REQUEST_QUEUE'], durable=True)
