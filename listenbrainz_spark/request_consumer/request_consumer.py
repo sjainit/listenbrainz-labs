@@ -87,7 +87,17 @@ class RequestConsumer:
             current_app.logger.info("Pushing to result queue...")
             self.push_to_result_queue(result)
             current_app.logger.info("Done!")
-        channel.basic_ack(delivery_tag=method.delivery_tag)
+        while True:
+            try:
+                self.request_channel.basic_ack(delivery_tag=method.delivery_tag)
+                break
+            except pika.exceptions.ChannelClosed:
+                self.request_channel.exchange_declare(exchange=current_app.config['SPARK_REQUEST_EXCHANGE'], exchange_type='fanout')
+                self.request_channel.queue_declare(current_app.config['SPARK_REQUEST_QUEUE'], durable=True)
+                self.request_channel.queue_bind(exchange=current_app.config['SPARK_REQUEST_EXCHANGE'], queue=current_app.config['SPARK_REQUEST_QUEUE'])
+                self.request_channel.basic_consume(self.callback, queue=current_app.config['SPARK_REQUEST_QUEUE'])
+
+
         current_app.logger.info("Request processed!")
 
 
