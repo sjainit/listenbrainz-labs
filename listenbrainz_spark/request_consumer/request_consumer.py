@@ -31,7 +31,7 @@ from flask import current_app
 
 class RequestConsumer:
 
-    def get_response(self, request):
+    def get_result(self, request):
         try:
             query = request['query']
             params = request.get('params', {})
@@ -58,13 +58,13 @@ class RequestConsumer:
             return None
 
 
-    def push_to_response_queue(self, response):
+    def push_to_result_queue(self, result):
         while True:
             try:
-                self.response_channel.basic_publish(
+                self.result_channel.basic_publish(
                     exchange=current_app.config['SPARK_RESULT_EXCHANGE'],
                     routing_key='',
-                    body=ujson.dumps(response),
+                    body=ujson.dumps(result),
                     properties=pika.BasicProperties(delivery_mode = 2,),
                 )
                 break
@@ -75,12 +75,12 @@ class RequestConsumer:
     def callback(self, channel, method, properties, body):
         current_app.logger.info("Processing new request...")
         request = json.loads(body.decode('utf-8'))
-        current_app.logger.info("Calculating response...")
-        response = self.get_response(request)
+        current_app.logger.info("Calculating result...")
+        result = self.get_result(request)
         current_app.logger.info("Done!")
-        if response:
-            current_app.logger.info("Pushing response to response queue...")
-            self.push_to_response_queue(response)
+        if result:
+            current_app.logger.info("Pushing to result queue...")
+            self.push_to_result_queue(result)
             current_app.logger.info("Done!")
         channel.basic_ack(delivery_tag=method.delivery_tag)
         current_app.logger.info("Request processed!")
