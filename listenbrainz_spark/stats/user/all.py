@@ -2,6 +2,7 @@ from datetime import datetime
 from listenbrainz_spark.utils import get_listens
 from listenbrainz_spark.constants import LAST_FM_FOUNDING_YEAR
 from listenbrainz_spark.stats.user.utils import get_artists, get_recordings, get_releases
+from collections import defaultdict
 
 def calculate():
     now = datetime.utcnow()
