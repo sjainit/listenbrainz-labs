@@ -24,6 +24,7 @@ import sys
 import time
 
 import listenbrainz_spark
+import listenbrainz_spark.query_map
 from datetime import datetime
 from listenbrainz_spark.utils import init_rabbitmq
 from flask import current_app
