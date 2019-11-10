@@ -92,6 +92,7 @@ class RequestConsumer:
                 self.request_channel.basic_ack(delivery_tag=method.delivery_tag)
                 break
             except pika.exceptions.ChannelClosed:
+                self.request_channel = self.rabbitmq.channel()
                 self.request_channel.exchange_declare(exchange=current_app.config['SPARK_REQUEST_EXCHANGE'], exchange_type='fanout')
                 self.request_channel.queue_declare(current_app.config['SPARK_REQUEST_QUEUE'], durable=True)
                 self.request_channel.queue_bind(exchange=current_app.config['SPARK_REQUEST_EXCHANGE'], queue=current_app.config['SPARK_REQUEST_QUEUE'])
