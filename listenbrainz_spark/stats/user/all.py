@@ -20,14 +20,4 @@ def calculate():
             'artist_count': len(user_artists ),
         }
 
-    # calculate and put recording stats into the result
-    recording_data = get_recordings(table_name)
-    for user_name, recording_stats in recording_data.items():
-        data[user_name]['recordings'] = recording_stats
-
-    # calculate and put release stats into the result
-    release_data = get_releases(table_name)
-    for user_name, release_stats in release_data.items():
-        data[user_name]['releases'] = release_stats
-
     return data
