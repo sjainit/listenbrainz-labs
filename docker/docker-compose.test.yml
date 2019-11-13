@@ -1,0 +1,19 @@
+version: "3.4"
+
+services:
+  hadoop-master:
+    image: metabrainz/hadoop-yarn:beta
+    command: hdfs namenode
+
+  datanode:
+    image: metabrainz/hadoop-yarn:beta
+    command: hdfs datanode
+
+  test:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      target: metabrainz-spark-dev
+    command: py.test
+    volumes:
+      - ..:/rec:z
