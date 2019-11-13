@@ -35,7 +35,7 @@ def init_test_session(app_name):
     try:
         session = SparkSession \
                 .builder \
-                .master('local')
+                .master('local') \
                 .appName(app_name) \
                 .config("spark.hadoop.dfs.client.use.datanode.hostname", "true") \
                 .config("spark.hadoop.dfs.datanode.use.datanode.hostname", "true") \
