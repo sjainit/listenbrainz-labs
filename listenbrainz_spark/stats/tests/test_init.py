@@ -6,13 +6,12 @@ Created on Sun Dec 15 20:12:56 2019
 @author: sarthak
 """
 
-
-from time import time
 import datetime
-
+import os
 
 import listenbrainz_spark
-
+from listenbrainz_spark import utils, hdfs_connection, config
+from pyspark.sql import Row
 from listenbrainz_spark import stats
 from listenbrainz_spark.tests import SparkTestCase
 
@@ -27,5 +26,16 @@ class InitTestCase(SparkTestCase):
         
     def test_ajust_days(self):
         self.assertEqual(stats.adjust_days(datetime.datetime(2019,5,12),3,True),datetime.datetime(2019,5,9,0,0))
+        
+    
+        
+    def test_run_query(self):
+        df = utils.create_dataframe(Row(column1=1, column2=2), schema=None)
+        query = """SELECT *
+                     FROM {df_id}
+                """.format(df_id=df)  
+        new_df=stats.run_query(query)
+        self.assertEqual(df.count(),new_df.count())
+        
         
         
