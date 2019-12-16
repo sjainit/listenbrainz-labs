@@ -28,5 +28,4 @@ class InitTestCase(SparkTestCase):
     def test_ajust_days(self):
         self.assertEqual(stats.adjust_days(datetime.datetime(2019,5,12),3,True),datetime.datetime(2019,5,9,0,0))
         
-    def test_run_query(self):
         
