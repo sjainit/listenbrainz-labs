@@ -7,9 +7,7 @@ Created on Sun Dec 15 20:12:56 2019
 """
 
 import datetime
-import listenbrainz_spark
-from pyspark.sql.functions import *
-from listenbrainz_spark import utils, hdfs_connection, config
+from listenbrainz_spark import utils
 from pyspark.sql import Row
 from listenbrainz_spark import stats
 from listenbrainz_spark.tests import SparkTestCase
