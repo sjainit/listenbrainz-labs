@@ -8,6 +8,7 @@ Created on Sun Dec 15 20:12:56 2019
 
 import datetime
 import listenbrainz_spark
+from pyspark.sql.functions import *
 from listenbrainz_spark import utils, hdfs_connection, config
 from pyspark.sql import Row
 from listenbrainz_spark import stats
@@ -27,10 +28,10 @@ class InitTestCase(SparkTestCase):
         
     def test_run_query(self):
         df = utils.create_dataframe(Row(column1=1, column2=2), schema=None)
-        utils.register_dataframe(df,'df')
+        df.createTempView("table")
         new_df=stats.run_query("""
       SELECT *
-        FROM df
+        FROM table
      """)
         self.assertEqual(new_df.count(),df.count())
         
