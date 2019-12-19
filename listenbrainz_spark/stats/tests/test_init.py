@@ -1,9 +1,8 @@
 	#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import datetime
-from listenbrainz_spark import utils
+from listenbrainz_spark import utils, stats
 from pyspark.sql import Row
-from listenbrainz_spark import stats
 from listenbrainz_spark.tests import SparkTestCase
 
 
