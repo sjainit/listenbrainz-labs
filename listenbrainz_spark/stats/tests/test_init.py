@@ -7,15 +7,10 @@ from pyspark.sql import Row
 
 class InitTestCase(SparkTestCase):
     def test_replace_days(self):
-        self.assertEqual(
-            stats.replace_days(datetime.datetime(2019, 5, 12), 13),
-            datetime.datetime(2019, 5, 13),
-        )
+        self.assertEqual(stats.replace_days(datetime.datetime(2019, 5, 12), 13), datetime.datetime(2019, 5, 13))
 
     def test_adjust_months(self):
-        d1 = stats.adjust_months(
-            datetime.datetime(2019, 5, 12), 3, shift_backwards=False
-        )
+        d1 = stats.adjust_months(datetime.datetime(2019, 5, 12), 3, shift_backwards=False)
         d2 = datetime.datetime(2019, 8, 12)
         self.assertEqual(d1, d2)
         d1 = stats.adjust_months(datetime.datetime(2019, 5, 12), 3)
@@ -37,6 +32,6 @@ class InitTestCase(SparkTestCase):
          SELECT *
           FROM table
           """
-        )
+          )
         self.assertEqual(new_df.count(), df.count())
         
