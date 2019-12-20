@@ -6,21 +6,25 @@ from pyspark.sql import Row
 
 class UtilsTestCase(SparkTestCase):
     
-    def test_get_artists(self):
-        df = utils.create_dataframe(Row(user_name='user2', artist_name='artist1', artist_msid='1', artist_mbids='1'), schema=None)
-        df1 = utils.create_dataframe(Row(user_name='user1', artist_name='artist1', artist_msid='1', artist_mbids='1'), schema=None)
+    def create_df(self):
+        df = utils.create_dataframe(Row(user_name='user2', artist_name='artist1', artist_msid='1',artist_mbids='1',track_name='test', recording_msid='1', recording_mbid='1', release_name='test',release_msid='1', release_mbid='1'), schema=None)
+        df1 = utils.create_dataframe(Row(user_name='user1',artist_name='artist1', artist_msid='1',artist_mbids='1',track_name='test', recording_msid='1', recording_mbid='1', release_name='test',release_msid='1', release_mbid='1'), schema=None)
         df = df.union(df1)
-        df2 = utils.create_dataframe(Row(user_name='user2', artist_name='artist1', artist_msid='1', artist_mbids='1'), schema=None)
+        df2 = utils.create_dataframe(Row(user_name='user1',artist_name='artist1', artist_msid='1',artist_mbids='1',track_name='test', recording_msid='1', recording_mbid='1', release_name='test',release_msid='1', release_mbid='1'), schema=None)
         df = df.union(df2)
-        df.createTempView('table')
+        return df
+    
+    def test_get_artists(self):
+        df = self.create_df()
+        df.createOrReplaceTempView('table')
         dictionary = {
-                    'user2': [{
+                    'user1': [{
                         'artist_name': 'artist1',
                         'artist_msid': '1',
                         'artist_mbids': '1',
-                        'listen_count': 2  
+                        'listen_count': 2
                     }],
-                        'user1': [{
+                        'user2': [{
                         'artist_name': 'artist1',
                         'artist_msid': '1',
                         'artist_mbids': '1',
@@ -29,15 +33,11 @@ class UtilsTestCase(SparkTestCase):
                      }
                         
         self.assertDictEqual(user.utils.get_artists('table'), dictionary)
-        self.assertEqual(user.utils.get_artists('table')['user2'][0]['listen_count'], 2)
+        self.assertEqual(user.utils.get_artists('table')['user1'][0]['listen_count'], 2)
     
     def test_get_recordings(self):
-        df = utils.create_dataframe(Row(user_name='user2', artist_name='artist1', artist_msid='1',artist_mbids='1',track_name='test', recording_msid='1', recording_mbid='1', release_name='test',release_msid='1', release_mbid='1'), schema=None)
-        df1 = utils.create_dataframe(Row(user_name='user1',artist_name='artist1', artist_msid='1',artist_mbids='1',track_name='test', recording_msid='1', recording_mbid='1', release_name='test',release_msid='1', release_mbid='1'), schema=None)
-        df = df.union(df1)
-        df2 = utils.create_dataframe(Row(user_name='user1',artist_name='artist1', artist_msid='1',artist_mbids='1',track_name='test', recording_msid='1', recording_mbid='1', release_name='test',release_msid='1', release_mbid='1'), schema=None)
-        df = df.union(df2)
-        df.createOrReplaceTempView("table")
+        df = self.create_df()
+        df.createOrReplaceTempView('table')
         dictionary =  {
                     'user1' : [{
                         'track_name': 'test',
@@ -69,12 +69,8 @@ class UtilsTestCase(SparkTestCase):
         self.assertEqual(user.utils.get_recordings('table')['user1'][0]['listen_count'], 2)
     
     def test_get_releases(self):
-        df = utils.create_dataframe(Row(user_name='user2',artist_name='artist1', artist_msid='1',artist_mbids='1',release_name='test', release_msid='1', release_mbid='1'), schema=None)
-        df1 = utils.create_dataframe(Row(user_name='user1',artist_name='artist1', artist_msid='1',artist_mbids='1',release_name='test', release_msid='1', release_mbid='1'), schema=None)
-        df = df.union(df1)
-        df2 = utils.create_dataframe(Row(user_name='user1',artist_name='artist1', artist_msid='1',artist_mbids='1',release_name='test', release_msid='1', release_mbid='1'), schema=None)
-        df = df.union(df2)
-        df.createOrReplaceTempView("table")
+        df = self.create_df()
+        df.createOrReplaceTempView('table')
         dictionary =  {
                     'user1' : [{
                         'artist_name': 'artist1',
